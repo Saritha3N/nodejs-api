@@ -1,15 +1,16 @@
 // getting routes and mapped to controller
 const { Router } = require('express');
-const controllers = require('../controllers');
-const getcontrollers = require('../controllers/getController');
+const userController = require('../controllers/userController');
+const locationController = require('../controllers/locationController');
 const router = Router();
 
-router.post('/sc-login', controllers.loginController);
-router.post('/sc-register', controllers.createUser);
-router.post('/sc-forgotpassword', controllers.forgotpassword);
+router.post('/sc-login', userController.loginController);
+router.post('/sc-register', userController.createUser);
+router.post('/sc-forgotpassword', userController.forgotpassword);
 
-router.get('/sc-countryList/:', getcontrollers.countryList);
-router.get('/sc-stateList/:', getcontrollers.stateList);
-router.get('/sc-cityList/:', getcontrollers.cityList);
+router.get('/sc-countryList/:', locationController.countryList);
+router.get('/sc-stateList/:', locationController.stateList);
+router.get('/sc-cityList/:', locationController.cityList);
+router.get('/sc-user/', userController.getUser);
 
 module.exports = router;

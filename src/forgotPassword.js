@@ -6,6 +6,9 @@ async function forgotPasswordRequest(req, res) {
     if (req.body != null && req.body.email != undefined) {
         var response = await dataProcess.find(sql.User, req.body);
         forgotPasswordHandler(response, res);    
+    } else {        
+        res.statusCode = 206;
+        res.send('Insuffient Input');
     }
 }
 async function forgotPasswordHandler(response, res) {

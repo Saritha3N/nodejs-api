@@ -8,17 +8,15 @@ async function loginRequest(loginData, res) {
         if (response && response.password) {
             const comparison = await lib.bcrypt.compare(loginData.password, response.password);
             if (comparison) {
-                const token = lib.jwt.sign({
-                    username:loginData.email 
-                },
-                    'SECRETKEY', {
-                    expiresIn: '7d'
-                });
                 delete response.password;
-                res.status(200).send({
-                    msg: 'Logged in!',
-                    token,
-                    response : response
+                const token = lib.jwt.sign({
+                    username:response
+                },
+                    process.env.JWTSECRETKEY, {
+                    expiresIn: '1d'
+                });
+                res.status(200).send({                  
+                    token
                   });
             } else {
                 res.statusCode = 401;
@@ -29,6 +27,9 @@ async function loginRequest(loginData, res) {
             res.statusCode = 206;
             res.send('Email does not exist');
         }
+    } else {
+        res.statusCode = 206;
+        res.send('Insuffient Input !!');
     }
 }
 module.exports = {
