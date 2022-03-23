@@ -31,7 +31,7 @@ const User = config.connection.define("users", {
 });
 
 const Country = config.connection.define("country", {
-    id : {
+    id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -71,6 +71,28 @@ const Cities = config.connection.define("city", {
         type: config.Sequelize.STRING
     }
 });
+const Order = config.connection.define("order", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    time: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+    place: {
+        type: config.Sequelize.STRING
+    },
+    customer: {
+        type: config.Sequelize.BOOLEAN,
+        defaultValue: 0
+    },
+    seller: {
+        type: config.Sequelize.BOOLEAN,
+        defaultValue: 0
+    }
+});
 config.connection.sync();
 
 
@@ -82,6 +104,6 @@ module.exports = {
     User,
     Country,
     States,
-    Cities
-
+    Cities,
+    Order
 };
