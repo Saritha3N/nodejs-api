@@ -1,10 +1,10 @@
 
 async function insert(collection, data) {
-    const resp = await collection.create(data).then(function (item) {
-        // console.log(item)
+    await collection.create(data).then(function (item) {
+      return true;
     }).catch((err) => {
         console.log('err from insert to db');
-        console.log(err);
+        throw err;
     });
 }
 async function find(collection, query) {

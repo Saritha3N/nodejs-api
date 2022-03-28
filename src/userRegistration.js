@@ -49,10 +49,10 @@ async function dataValidator(data) {
 async function userRegistrationRequest(registerSubmitData, res) {
     if (registerSubmitData != undefined) {
         var query = { 'name': registerSubmitData.name, 'email': registerSubmitData.email };
-        if (registerSubmitData.role == 'user') {
-            query.isAdmin = 0
+        if (registerSubmitData.role == 'admin') {
+            query.isAdmin = 1;
         } else {
-            query.isAdmin = 1
+            query.isAdmin = 0;
         }
         let result = await dataProcess.find(sql.User, query);
         (async () => {
@@ -64,17 +64,26 @@ async function userRegistrationRequest(registerSubmitData, res) {
 }
 async function checkAndHandleRegistration(result, res, registerSubmitData) {
     if (result === 'null' || result === null || result === undefined) {
-        if (registerSubmitData.role == 'user') {
-            registerSubmitData.isAdmin = 0
+        if (registerSubmitData.role == 'admin') {
+            registerSubmitData.isAdmin = 1;
         } else {
-            registerSubmitData.isAdmin = 1
+            registerSubmitData.isAdmin = 0;
         }
         try {
             (async () => {
-                await dataProcess.insert(sql.User, registerSubmitData);
-            })().then(() => {
-                res.statusCode = 201;
-                res.send('created');
+              await dataProcess.insert(sql.User, registerSubmitData);
+            })().catch((err)=>{
+                return err;
+            }).then((err) => {
+                if(err) {
+                    console.log("registration insert error message");
+                    console.log(err);
+                    res.statusCode = 464;
+                    res.send(err.errors[0].message); 
+                } else {
+                    res.statusCode = 201;
+                    res.send('created');     
+                }   
             });
         } catch (err) {
             console.log(err);

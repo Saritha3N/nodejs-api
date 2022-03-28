@@ -12,8 +12,11 @@ const User = config.connection.define("users", {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
+    },    
+    role: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
     password: {
         type: DataTypes.STRING,
@@ -84,21 +87,31 @@ const Order = config.connection.define("order", {
     place: {
         type: config.Sequelize.STRING
     },
-    customer: {
-        type: config.Sequelize.BOOLEAN,
-        defaultValue: 0
+});
+
+const Item = config.connection.define("item", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
-    seller: {
-        type: config.Sequelize.BOOLEAN,
-        defaultValue: 0
-    }
+    name: {
+        type: config.Sequelize.STRING
+    },
+    specification: {
+        type: config.Sequelize.STRING
+    },
+    price: {
+        type: config.Sequelize.STRING
+    },
 });
 config.connection.sync();
-
 
 States.belongsTo(Country);
 Cities.belongsTo(States);
 User.belongsTo(Cities);
+Order.belongsTo(User);
+Order.belongsTo(Item)
 
 module.exports = {
     User,
