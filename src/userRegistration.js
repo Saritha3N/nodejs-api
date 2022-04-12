@@ -4,7 +4,7 @@ const saltRounds = 8;
 const dataProcess = require('./dataProcess');
 const sql = require("../database/models");
 
-async function dataValidator(data) {
+async function dataValidator(data,res) {
     var registerSubmitData = {};
     var countOfDataIndex = 0;
     try {
@@ -17,6 +17,8 @@ async function dataValidator(data) {
                 case 'dob':
                     if (!lib.validator.isDate(data[key])) {
                         console.log('Date is invalid');
+                        res.statusCode = 406;
+                        res.send('Unable to insert, date format of dob is invalid');
                     } else {
                         registerSubmitData['dob'] = data[key];
                         countOfDataIndex++;
@@ -32,6 +34,7 @@ async function dataValidator(data) {
                     break;
                 default:
                     if (countOfDataIndex == 7) {
+                        console.log("count is 7");
                         return registerSubmitData;
                     } else {
                         if (registerSubmitData[key] == undefined) {
@@ -56,8 +59,8 @@ async function userRegistrationRequest(registerSubmitData, res) {
         }
         let result = await dataProcess.find(sql.User, query);
         (async () => {
-            var signupData = await dataValidator(registerSubmitData);
-            console.log(signupData);
+            var signupData = await dataValidator(registerSubmitData,res);
+           // console.log(signupData);
             checkAndHandleRegistration(result, res, signupData);
         })();
     }
@@ -71,19 +74,19 @@ async function checkAndHandleRegistration(result, res, registerSubmitData) {
         }
         try {
             (async () => {
-              await dataProcess.insert(sql.User, registerSubmitData);
-            })().catch((err)=>{
+                await dataProcess.insert(sql.User, registerSubmitData);
+            })().catch((err) => {
                 return err;
             }).then((err) => {
-                if(err) {
+                if (err) {
                     console.log("registration insert error message");
                     console.log(err);
                     res.statusCode = 464;
-                    res.send(err.errors[0].message); 
+                    res.send(err.errors[0].message);
                 } else {
                     res.statusCode = 201;
-                    res.send('created');     
-                }   
+                    res.send('created');
+                }
             });
         } catch (err) {
             console.log(err);

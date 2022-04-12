@@ -1,9 +1,5 @@
 const { DataTypes } = require('sequelize');
 const config = require('../src/config/config');
-const db = require('./dbInitialise');
-
-db.initialize();
-// define article model
 const User = config.connection.define("users", {
     uid: {
         type: DataTypes.INTEGER,
@@ -103,20 +99,61 @@ const Item = config.connection.define("item", {
     },
     price: {
         type: config.Sequelize.STRING
+    }
+});
+
+const Store = config.connection.define("store", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
+    title: {
+        type: config.Sequelize.STRING
+    },
+    type: {
+        type: config.Sequelize.STRING
+    },
+    quantity: {
+        type: config.Sequelize.FLOAT
+    },
+    price: {
+        type: config.Sequelize.FLOAT
+    },
+    content: {
+        type: config.Sequelize.STRING
+    }
+});
+const OrderItem = config.connection.define("order_item", {
+
 });
 config.connection.sync();
+
 
 States.belongsTo(Country);
 Cities.belongsTo(States);
 User.belongsTo(Cities);
 Order.belongsTo(User);
-Order.belongsTo(Item)
+//Order.hasMany(Item);
+Order.belongsToMany(Item, {
+    through: OrderItem,
+    foreignKey: "orderId",
+  });
+  Item.belongsToMany(Order, {
+    through: OrderItem,
+    foreignKey: "itemId",
+  });
+Item.belongsTo(Store);
+Store.belongsTo(Cities);
+Store.belongsTo(User);
 
 module.exports = {
     User,
     Country,
     States,
     Cities,
-    Order
+    Order,
+    Item,
+    Store,
+    OrderItem
 };

@@ -1,6 +1,6 @@
     
 var values = require('dotenv').config({path:__dirname.replace('server','')+'.env'});
-console.log(values);
+//console.log(values);
 
 const PORT = process.env.PORT || 7000;
 const express = require('express');

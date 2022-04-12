@@ -6,7 +6,8 @@ const Sequelize = require('sequelize');
 // connect dev db
 const connection = new Sequelize(process.env.DATABASENAME, process.env.DBUSER, process.env.DBPASS, {
   host:  process.env.DBHOST,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  logging: false
 });
 const database = {
   host :  process.env.DBHOST,

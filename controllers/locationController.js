@@ -4,7 +4,7 @@ const locationData = require('../src/locationData');
 
 const countryList = async (req, res) => {
     try {
-        const listRequest = req.query;
+        const listRequest = req.params;
         console.log(listRequest)
         locationData.getListOfCountryData(listRequest, res);
     } catch (error) {
@@ -15,7 +15,7 @@ const countryList = async (req, res) => {
 
 const stateList = async (req, res) => {
     try {
-        const listRequest = req.query;
+        const listRequest = req.params;
         console.log(listRequest)
         locationData.getListOfStateData(listRequest, res);
     } catch (error) {
@@ -26,7 +26,7 @@ const stateList = async (req, res) => {
 
 const cityList = async (req, res) => {
     try {
-        const listRequest = req.query;
+        const listRequest = req.params;
         console.log(listRequest)
         locationData.getListOfCityData(listRequest, res);
     } catch (error) {
@@ -36,5 +36,5 @@ const cityList = async (req, res) => {
 module.exports = {
     countryList ,
     stateList ,
-    cityList
+    cityList 
 };
