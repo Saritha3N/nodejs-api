@@ -6,7 +6,10 @@ const countryList = async (req, res) => {
     try {
         const listRequest = req.params;
         console.log(listRequest)
-        locationData.getListOfCountryData(listRequest, res);
+        console.log("req.query")
+        console.log(req.query)
+        const query = req.query;
+        locationData.getListOfCountryData(listRequest, res, query);
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -17,7 +20,10 @@ const stateList = async (req, res) => {
     try {
         const listRequest = req.params;
         console.log(listRequest)
-        locationData.getListOfStateData(listRequest, res);
+        console.log("req.query")
+        console.log(req.query)
+        const query = req.query;
+        locationData.getListOfStateData(listRequest, res, query);
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -28,13 +34,16 @@ const cityList = async (req, res) => {
     try {
         const listRequest = req.params;
         console.log(listRequest)
-        locationData.getListOfCityData(listRequest, res);
+        console.log("req.query")
+        console.log(req.query)
+        const query = req.query;
+        locationData.getListOfCityData(listRequest, res, query);
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
 };
 module.exports = {
-    countryList ,
-    stateList ,
-    cityList 
+    countryList,
+    stateList,
+    cityList
 };

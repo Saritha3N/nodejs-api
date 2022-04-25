@@ -1,7 +1,7 @@
 const dataProcess = require('./dataProcess');
 const db = require("../database/models");
 var userInfo = {};
-const getOdersByUser = async (listRequest, res) => {
+const getOdersByUser = async (listRequest, res, reqQuery) => {
     try {
         var query = {};
         if (listRequest.user != undefined) {
@@ -21,14 +21,18 @@ const getOdersByUser = async (listRequest, res) => {
                     orderResponse[key].dataValues.item = await dataProcess.find(db.Item, { id: OrderItem.itemId });
                     var itemResponse = orderResponse[key].dataValues.item;
                     if (itemResponse) {
-                        orderResponse[key].dataValues.item.store = await dataProcess.find(db.Store, { id: itemResponse.storeId });
-                        delete orderResponse[key].dataValues.item.storeId;
+                        var storeItem = await dataProcess.find(db.storeItem, { itemId: itemResponse.id });
+                        orderResponse[key].dataValues.item.store = await dataProcess.find(db.Store, { id: storeItem.storeId });
+                        //delete orderResponse[key].dataValues.item.storeId;
                     }
                     if (key == orderResponse.length - 1) {
+
                         var dataResponse = {};
                         dataResponse.userInfo = userInfo;
-                        dataResponse.orders = orderResponse
-                        responseGenerate(200, {data : dataResponse}, res);
+                        dataResponse.orders = orderResponse;
+
+                        generatePaginatedResponse(reqQuery, orderResponse, res, "no data in this page");
+                        // responseGenerate(200, {data : dataResponse}, res);
                     }
                 }
             }
@@ -49,6 +53,22 @@ const responseGenerate = (code, data, res) => {
     res.send(data);
 }
 
+
+const generatePaginatedResponse = (reqQuery, response, res, errorMessage) => {
+
+    var page = reqQuery.page ? reqQuery.page : 1;
+    var size = reqQuery.size ? reqQuery.size : 10;
+    var paginatedReponse = [];
+    for (var key = (size * (page - 1)); key < (size * page); key++) {
+        if (response[key])
+            paginatedReponse.push(response[key]);
+    }
+    if (paginatedReponse.length > 0) {
+        responseGenerate(200, { data: paginatedReponse }, res);
+    } else if (paginatedReponse.length == 0) {
+        responseGenerate(200, errorMessage, res);
+    }
+}
 module.exports = {
     getOdersByUser
 };

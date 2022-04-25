@@ -2,11 +2,11 @@ const lib = require('./config/config');
 const dataProcess = require('./dataProcess');
 const db = require("../database/models");
 
-const getListOfCountryData = async (listRequest, res) => {
+const getListOfCountryData = async (listRequest, res, reqQuery) => {
     var response = {};
     try {
         if (Object.keys(listRequest).length === 0) {
-            response = await dataProcess.findAll(db.Country, listRequest);
+            response = await dataProcess.findAll(db.Country, listRequest,"", reqQuery);
         } else {
             response = await dataProcess.find(db.Country, listRequest);
         }
@@ -22,12 +22,12 @@ const getListOfCountryData = async (listRequest, res) => {
     }
 };
 
-const getListOfStateData = async (listRequest, res) => {
+const getListOfStateData = async (listRequest, res, reqQuery) => {
     try {
         //all states list
         if (Object.keys(listRequest).length === 0) {
             try {
-                const stateResponse = await dataProcess.findAll(db.States, listRequest);
+                const stateResponse = await dataProcess.findAll(db.States, listRequest,"",reqQuery);
                 for (var key in stateResponse) {
                     stateResponse[key].dataValues.country = await dataProcess.findAll(db.Country,
                         { id: stateResponse[key].dataValues.countryId });
@@ -55,7 +55,7 @@ const getListOfStateData = async (listRequest, res) => {
             if (response && response.id) {
                 try {
                     const stateQuery = { countryId: response.id };
-                    const stateResponse = await dataProcess.findAll(db.States, stateQuery, exclude);
+                    const stateResponse = await dataProcess.findAll(db.States, stateQuery, exclude,reqQuery);
                     for (var key in stateResponse) {
                         stateResponse[key].dataValues.country = response;
                     }
@@ -80,12 +80,12 @@ const getListOfStateData = async (listRequest, res) => {
     }
 };
 
-const getListOfCityData = async (listRequest, res) => {
+const getListOfCityData = async (listRequest, res, reqQuery) => {
     try {
         //all city list
         if (Object.keys(listRequest).length === 0) {
             try {
-                const cityResponse = await dataProcess.findAll(db.Cities, listRequest);
+                const cityResponse = await dataProcess.findAll(db.Cities, listRequest, "", reqQuery);
                 for (var key in cityResponse) {
                     if (cityResponse[key].dataValues.stateId) {
                         var stateResponse = await dataProcess.find(db.States, { id: cityResponse[key].dataValues.stateId });
@@ -149,13 +149,32 @@ const getListOfCityData = async (listRequest, res) => {
                                         cityResponse = cityResponse.concat(oneStateCityResponse);
                                     }
                                     if (key == Object.keys(stateResponse)[Object.keys(stateResponse).length - 1]) {
-                                        if (cityResponse) {
-                                            res.statusCode = 200;
-                                            res.send({ data: cityResponse });
-                                        } else {
-                                            res.statusCode = 200;
-                                            res.send("No cities stored for this state");
-                                        }
+                                        cityResponse = cityResponse.sort(function (a, b) {
+                                            return (a.id - b.id);
+                                        });
+                                        if (reqQuery) {
+                                            var page = reqQuery.page ? reqQuery.page : 1;
+                                            var size = reqQuery.size ? reqQuery.size : 10;
+                                            var paginatedReponse = [];
+                                            for (var key = (size * (page - 1)); key < (size * page); key++) {
+                                                if (cityResponse[key])
+                                                    paginatedReponse.push(cityResponse[key]);
+                                            }
+                                            if (paginatedReponse.length > 0) {
+                                                res.statusCode = 200;
+                                                res.send({ data: paginatedReponse });
+                                            } else if (paginatedReponse.length == 0) {
+                                                res.statusCode = 200;
+                                                res.send("No cities  for this state in this page");
+                                            }
+                                        } else
+                                            if (cityResponse) {
+                                                res.statusCode = 200;
+                                                res.send({ data: cityResponse });
+                                            } else {
+                                                res.statusCode = 200;
+                                                res.send("No cities stored for this state");
+                                            }
                                     }
                                 } catch (error) {
                                     res.statusCode = 404;
@@ -180,7 +199,7 @@ const getListOfCityData = async (listRequest, res) => {
                 if (response && response.id) {
                     try {
                         const cityQuery = { stateId: response.id };
-                        const cityResponse = await dataProcess.findAll(db.Cities, cityQuery);
+                        const cityResponse = await dataProcess.findAll(db.Cities, cityQuery, "", reqQuery);
                         // for loop for to add state and country object in city list
                         for (key in cityResponse) {
                             delete cityResponse[key].dataValues.stateId;
@@ -225,13 +244,32 @@ const getListOfCityData = async (listRequest, res) => {
                                     cityResponse = cityResponse.concat(oneStateCityResponse)
                                 }
                                 if (key == Object.keys(stateResponse)[Object.keys(stateResponse).length - 1]) {
-                                    if (cityResponse) {
-                                        res.statusCode = 200;
-                                        res.send({ data: cityResponse });
-                                    } else {
-                                        res.statusCode = 200;
-                                        res.send("No cities stored for this state");
-                                    }
+                                    cityResponse = cityResponse.sort(function (a, b) {
+                                        return (a.id - b.id);
+                                    });
+                                    if (reqQuery) {
+                                        var page = reqQuery.page ? reqQuery.page : 1;
+                                        var size = reqQuery.size ? reqQuery.size : 10;
+                                        var paginatedReponse = [];
+                                        for (var key = (size * (page - 1)); key < ((size * page) ); key++) {
+                                            if (cityResponse[key])
+                                                paginatedReponse.push(cityResponse[key]);
+                                        }
+                                        if (paginatedReponse.length > 0) {
+                                            res.statusCode = 200;
+                                            res.send({ data: paginatedReponse });
+                                        } else if (paginatedReponse.length == 0) {
+                                            res.statusCode = 200;
+                                            res.send("No cities  for this state in this page");
+                                        }
+                                    } else
+                                        if (cityResponse) {
+                                            res.statusCode = 200;
+                                            res.send({ data: cityResponse });
+                                        } else {
+                                            res.statusCode = 200;
+                                            res.send("No cities stored for this state");
+                                        }
                                 }
                             } catch (error) {
                                 res.statusCode = 404;

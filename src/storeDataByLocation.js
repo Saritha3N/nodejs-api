@@ -2,7 +2,7 @@
 const dataProcess = require('./dataProcess');
 const db = require("../database/models");
 
-const getListOfStoreByCity = async (listRequest, res) => {
+const getListOfStoreByCity = async (listRequest, res, reqQuery) => {
     try {
         var query = {};
         if (listRequest.city != undefined) {
@@ -15,7 +15,7 @@ const getListOfStoreByCity = async (listRequest, res) => {
             var storeQuery = { cityId: cityResponse.id };
             try {
                 storeResponse = await dataProcess.findAll(db.Store, storeQuery);
-                getAndDefineStoreResponse(storeResponse, cityResponse, res, 'city');
+                getAndDefineStoreResponse(storeResponse, cityResponse, res, 'city',reqQuery);
             } catch (err) {
                 responseGenerate(404, "Failed to get requested store", res);
             }
@@ -26,23 +26,24 @@ const getListOfStoreByCity = async (listRequest, res) => {
         responseGenerate(404, "Failed to get requested city", res);
     }
 };
-const getAndDefineStoreResponse = async (storeResponse, cityResponse, res, callFrom) => {
+const getAndDefineStoreResponse = async (storeResponse, cityResponse, res, callFrom, reqQuery) => {
     if (storeResponse) {
         for (var key in storeResponse) {
             storeResponse[key].dataValues.city = cityResponse;//add city data in store
             delete storeResponse[key].dataValues.cityId;
             if (callFrom == 'city') {
                 console.log("cityyyyyyyy");
+                //console.log(cityResponse);
                 try {
                     storeResponse[key].dataValues.city.state = await dataProcess.find(db.States, { id: cityResponse.stateId });//add state data in store
                     storeResponse[key].dataValues.city.state.country = await dataProcess.find(db.Country,
                         { id: storeResponse[key].dataValues.city.state.countryId },
                         ['dial_code']);//add country data in store
                     console.log(cityResponse)
-                    delete cityResponse.stateId;
-                    delete cityResponse.state.countryId;
+                    //delete cityResponse.stateId;
+                    //delete cityResponse.state.countryId;
                 } catch (error) {
-
+                    responseGenerate(404, "Failed to get city details", res);
                 }
             }
             try {
@@ -54,7 +55,7 @@ const getAndDefineStoreResponse = async (storeResponse, cityResponse, res, callF
                 if (key == storeResponse.length - 1 && (callFrom == 'state' || callFrom == 'country')) {
                     return storeResponse;
                 } else if (key == storeResponse.length - 1) {
-                    responseGenerate(200, { data: storeResponse }, res);
+                    generatePaginatedResponse(reqQuery,storeResponse,res,"no data in this page");
                 }
             } catch (error) {
                 responseGenerate(404, "Failed to get user details", res);
@@ -64,7 +65,7 @@ const getAndDefineStoreResponse = async (storeResponse, cityResponse, res, callF
         responseGenerate(202, "No stores in given city", res);
     }
 };
-const getListOfStoreByState = async (listRequest, res) => {
+const getListOfStoreByState = async (listRequest, res, reqQuery) => {
     try {
         var query = {};
         if (listRequest.state != undefined) {
@@ -77,7 +78,7 @@ const getListOfStoreByState = async (listRequest, res) => {
             try {
                 var cityResponse = await dataProcess.findAll(db.Cities, { stateId: stateResponse.id });
                 if (cityResponse) {
-                    getStoreDataUsingCityResponse(cityResponse, stateResponse, res, 'state');
+                    getStoreDataUsingCityResponse(cityResponse, stateResponse, res, 'state', "", reqQuery);
                 }
             } catch (error) {
                 responseGenerate(404, "No such states found!", res);
@@ -91,7 +92,7 @@ const getListOfStoreByState = async (listRequest, res) => {
 };
 
 
-const getListOfStoreByCountry = async (listRequest, res) => {
+const getListOfStoreByCountry = async (listRequest, res, reqQuery) => {
     try {
         var query = {};
         if (listRequest.country != undefined) {
@@ -112,13 +113,14 @@ const getListOfStoreByCountry = async (listRequest, res) => {
                         }
                         var cityResponse = await dataProcess.findAll(db.Cities, cityQuery);
                         if (cityResponse) {
-                            oneStateStoreResponse = await getStoreDataUsingCityResponse(cityResponse, stateResponse[key].dataValues, res, 'country', countryResponse);
+                            oneStateStoreResponse = await getStoreDataUsingCityResponse(cityResponse, stateResponse[key].dataValues, res, 'country', countryResponse, reqQuery);
                             if (oneStateStoreResponse)
                                 storeResponse = storeResponse.concat(oneStateStoreResponse);
                         }
                         if (key == stateResponse.length - 1) {
                             if (storeResponse) {
-                                responseGenerate(200, { data: storeResponse }, res);
+
+                                generatePaginatedResponse(reqQuery,storeResponse,res,"no data in this page");
                             } else {
                                 responseGenerate(200, "Not Exist Any Store In Selected Country", res);
                             }
@@ -139,7 +141,7 @@ const getListOfStoreByCountry = async (listRequest, res) => {
 };
 
 
-const getStoreDataUsingCityResponse = async (cityResponse, stateResponse, res, callFrom, countryResponse) => {
+const getStoreDataUsingCityResponse = async (cityResponse, stateResponse, res, callFrom, countryResponse, reqQuery) => {
     var storeResponse = [];
     for (var key in cityResponse) {
         var storeQuery = { cityId: cityResponse[key].id };
@@ -154,7 +156,8 @@ const getStoreDataUsingCityResponse = async (cityResponse, stateResponse, res, c
                 else {
                     delete cityResponse[key].dataValues.stateId;
                     cityResponse[key].dataValues.state = stateResponse;
-                    stateResponse.country = countryResponse;//add country data in store
+                    if (countryResponse != "")
+                        stateResponse.country = countryResponse;//add country data in store
                     delete stateResponse.countryId;
 
                 }
@@ -165,7 +168,7 @@ const getStoreDataUsingCityResponse = async (cityResponse, stateResponse, res, c
                 if (storeResponse && callFrom == 'country') {
                     return storeResponse;
                 } else if (storeResponse && callFrom == 'state') {
-                    responseGenerate(200, { data: storeResponse }, res);
+                    generatePaginatedResponse(reqQuery,storeResponse,res,"no data in this page");
                 } else {
                     responseGenerate(202, "No store in given state", res);
                 }
@@ -179,6 +182,22 @@ const getStoreDataUsingCityResponse = async (cityResponse, stateResponse, res, c
 const responseGenerate = (code, data, res) => {
     res.statusCode = code;
     res.send(data);
+}
+
+const generatePaginatedResponse = (reqQuery, response,res,errorMessage) => {
+
+    var page = reqQuery.page ? reqQuery.page : 1;
+    var size = reqQuery.size ? reqQuery.size : 10;
+    var paginatedReponse = [];
+    for (var key = (size * (page - 1)); key < (size * page); key++) {
+        if (response[key])
+            paginatedReponse.push(response[key]);
+    }
+    if (paginatedReponse.length > 0) {
+        responseGenerate(200,{ data: paginatedReponse },res);
+    } else if (paginatedReponse.length == 0) {
+        responseGenerate(200,errorMessage,res);
+    }
 }
 module.exports = {
     getListOfStoreByCity,

@@ -9,7 +9,7 @@ const User = config.connection.define("users", {
     name: {
         type: DataTypes.STRING,
         allowNull: false
-    },    
+    },
     role: {
         type: DataTypes.STRING,
         allowNull: false
@@ -127,6 +127,9 @@ const Store = config.connection.define("store", {
 const OrderItem = config.connection.define("order_item", {
 
 });
+const storeItem = config.connection.define("Store_item", {
+
+});
 config.connection.sync();
 
 
@@ -138,12 +141,21 @@ Order.belongsTo(User);
 Order.belongsToMany(Item, {
     through: OrderItem,
     foreignKey: "orderId",
-  });
-  Item.belongsToMany(Order, {
+});
+Item.belongsToMany(Order, {
     through: OrderItem,
     foreignKey: "itemId",
-  });
-Item.belongsTo(Store);
+});
+//Item.belongsTo(Store);
+
+Store.belongsToMany(Item, {
+    through: storeItem,
+    foreignKey: "storeId",
+});
+Item.belongsToMany(Store, {
+    through: storeItem,
+    foreignKey: "itemId",
+});
 Store.belongsTo(Cities);
 Store.belongsTo(User);
 
@@ -155,5 +167,6 @@ module.exports = {
     Order,
     Item,
     Store,
-    OrderItem
+    OrderItem,
+    storeItem
 };
