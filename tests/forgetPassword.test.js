@@ -1,18 +1,18 @@
 
 const request = require('supertest');
-var app = require('../server');
+const app = require('../server');
 
 describe("Forget password Positive Test", () => {
-  test('Forget password success', async () => {
-    const res = await request(app)
-      .post('/api/sc-forgotpassword')
+  it('Forget password success', async () => {
+     await request(app)
+      .post('/api/forgotpassword')
       .send({
-        email: 'nithin@gmail.com'
+        email: 'saritha@gmail.com'
       }).expect(200);
   });
-  test('Forget password Failed, no such user', async () => {
-    const res = await request(app)
-      .post('/api/sc-forgotpassword')
+  it('Forget password Failed, no such user', async () => {
+     await request(app)
+      .post('/api/forgotpassword')
       .send({
         email: 'nithinp@gmail.com'
       }).expect(404);

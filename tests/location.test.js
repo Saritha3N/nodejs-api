@@ -7,31 +7,31 @@ describe("Location  Test", () => {
 
   it('Country Positive Test', async () => {
     await request(app)
-      .get('/api/sc-countryList/:?name=india')
+      .get('/api/country/india')
       .expect(200);
   });
 
   it('Country Negative Test', async () => {
      await request(app)
-      .get('/api/sc-countryList/:?name=xxxx')
-      .expect(404);
+      .get('/api/country/abc')
+      .expect(200);
   });
 
   it('State Positive Test', async () => {
     await request(app)
-      .get('/api/sc-stateList/:?name=kerala')
+      .get('/api/state/')
       .expect(200);
   });
 
   it('State Negative Test', async () => {
      await request(app)
-      .get('/api/sc-stateList/:?name=cccccc')
+      .get('/api/country/abc/state/')
       .expect(404);
   });
   
   it('City Positive Test', async () => {
     await request(app)
-      .get('/api/sc-cityList/:?name=kollam')
+      .get('/api/state/kerala/city/')
       .expect(200);
   });
 });

@@ -5,7 +5,7 @@ describe("Login", () => {
   
   it('Login success', async () => {
     await request(app)
-      .post('/api/sc-login')
+      .post('/api/login')
       .send({
         email: 'saritha@gmail.com',
         password: 'encsaritha'
@@ -14,7 +14,7 @@ describe("Login", () => {
   
   it('Login success', async () => {
     await request(app)
-      .post('/api/sc-login')
+      .post('/api/login')
       .send({
         email: 'saritha@gmail.com',
         password: 'encsaritha'
@@ -23,7 +23,7 @@ describe("Login", () => {
 
   it('Login Password Is Wrong', async () => {
     await request(app)
-      .post('/api/sc-login')
+      .post('/api/login')
       .send({
         email: 'saritha@gmail.com',
         password: 'encsaritha1'
@@ -31,7 +31,7 @@ describe("Login", () => {
   });
   it('Login with wrong user name and password', async () => {
     await request(app)
-      .post('/api/sc-login')
+      .post('/api/login')
       .send({
         email: 'sarithawww@gmail.com',
         password: 'encsarithwwwwwa'
