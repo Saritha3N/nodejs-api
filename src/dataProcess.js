@@ -21,9 +21,8 @@ async function find(collection, query, exclude) {
             return response.dataValues;
         }
     }).catch((err) => {
-        console.log(collection)
-        console.log(query)
-        console.log(query)
+        console.log(collection);
+        console.log(query);
         console.log('err from find from db');
         console.log(err);
     });
@@ -35,34 +34,30 @@ async function findAll(collection, query, exclude, reqQuery) {
         excludeParams = excludeParams.concat(exclude);
     }
     if (reqQuery && reqQuery.page) {
-        console.log("with pagination")
+        console.log("with pagination");
         reqQuery.size = reqQuery.size ? reqQuery.size : 10;
         const { limit, offset } = getPagination(reqQuery.page - 1, reqQuery.size);
         const resp = await collection.findAll({
             where: query, limit, offset,
             attributes: { exclude: excludeParams }
         }).then((response) => {
-            // console.log(response)
             if (response.length > 0) {
                 return response;
             } else {
                 return null;
             }
         }).catch((err) => {
-            console.log(collection)
-            console.log(query)
+            console.log(collection);
+            console.log(query);
             console.log('err from findall from db');
             console.log(err);
         });
         return resp;
     } else {
-
-        //console.log("without pagination")
         const resp = await collection.findAll({
             where: query,
             attributes: { exclude: excludeParams }
         }).then((response) => {
-            // console.log(response)
             if (response.length > 0) {
                 return response;
             } else {

@@ -14,6 +14,8 @@ const getStores = async (req, res) => {
             storeData.getListOfStoreByState(listRequest, res, query);
         } else if (requestedPath.indexOf("/country") > -1) {
             storeData.getListOfStoreByCountry(listRequest, res, query);
+        } else {            
+            storeData.getListOfStores(listRequest, res, query);
         }
     } catch (error) {
         return res.status(500).json({ error: error.message });

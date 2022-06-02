@@ -2,6 +2,18 @@
 const dataProcess = require('./dataProcess');
 const db = require("../database/models");
 
+const getListOfStores = async(listRequest, res, reqQuery) => {
+    var TempStoreResponse = await dataProcess.findAll(db.Store, {});
+    if (TempStoreResponse) {
+        generatePaginatedResponse(reqQuery, TempStoreResponse, res, "");
+        return;
+    }
+    else {
+        responseGenerate(200, "No items in given store !", res);
+        return;
+    }
+}
+
 const getListOfStoreByCity = async (listRequest, res, reqQuery) => {
     try {
         var query = {};
@@ -202,5 +214,6 @@ const generatePaginatedResponse = (reqQuery, response,res,errorMessage) => {
 module.exports = {
     getListOfStoreByCity,
     getListOfStoreByState,
-    getListOfStoreByCountry
+    getListOfStoreByCountry,
+    getListOfStores
 };

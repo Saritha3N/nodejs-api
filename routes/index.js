@@ -27,6 +27,7 @@ router.get('/country_id/:country_id/state', locationController.stateList);
 router.get('/country', locationController.countryList);
 router.get('/country/:name', locationController.countryList);
 
+router.get('/stores', storeController.getStores);//get store by city
 router.get('/city/:city/stores', storeController.getStores);//get store by city
 router.get('/city_id/:id/stores', storeController.getStores);// get store by cityid
 router.get('/state/:state/stores', storeController.getStores);//get store by state 
@@ -35,6 +36,7 @@ router.get('/country/:country/stores', storeController.getStores);//get store by
 router.get('/country_id/:id/stores', storeController.getStores);// get store by countryid
 
 
+router.get('/items', itemController.getItems);// get item by store
 router.get('/store/:store/items', itemController.getItems);// get item by store
 router.get('/store_id/:id/items', itemController.getItems);// get item by storeid
 

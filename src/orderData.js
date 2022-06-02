@@ -16,23 +16,18 @@ const getOdersByUser = async (listRequest, res, reqQuery) => {
             var orderResponse = await dataProcess.findAll(db.Order, orderQuery, ['userUid']);
             if (orderResponse) {
                 for (var key in orderResponse) {
-                    // orderResponse[key].dataValues.user = userResponse;
                     var OrderItem = await dataProcess.find(db.OrderItem, { orderId: orderResponse[key].dataValues.id });
                     orderResponse[key].dataValues.item = await dataProcess.find(db.Item, { id: OrderItem.itemId });
                     var itemResponse = orderResponse[key].dataValues.item;
                     if (itemResponse) {
                         var storeItem = await dataProcess.find(db.storeItem, { itemId: itemResponse.id });
                         orderResponse[key].dataValues.item.store = await dataProcess.find(db.Store, { id: storeItem.storeId });
-                        //delete orderResponse[key].dataValues.item.storeId;
                     }
                     if (key == orderResponse.length - 1) {
-
                         var dataResponse = {};
                         dataResponse.userInfo = userInfo;
                         dataResponse.orders = orderResponse;
-
                         generatePaginatedResponse(reqQuery, orderResponse, res, "no data in this page");
-                        // responseGenerate(200, {data : dataResponse}, res);
                     }
                 }
             }

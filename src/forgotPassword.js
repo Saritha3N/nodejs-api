@@ -16,7 +16,7 @@ async function forgotPasswordHandler(response, res) {
         res.statusCode = 404;
         res.send('no such user');
     } else {
-        //send mail
+        //send mail needs to include here
         res.statusCode = 200;
         res.send('check mail');
     }
